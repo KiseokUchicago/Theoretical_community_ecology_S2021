@@ -1,7 +1,7 @@
-name: "TCE"
+name: TCE
 output_dir: ../docs
 navbar:
-  title: "TCE"
+  title: TCE
   left:
   - text: Home
     href: index.html
@@ -9,6 +9,10 @@ navbar:
     href: about.html
   - text: License
     href: license.html
+  right:
+  - icon: fa-github
+    text: Source code
+    href: https://github.com/KiseokUchicago/Theoretical_community_ecology_S2021
 output:
   workflowr::wflow_html:
     toc: yes
