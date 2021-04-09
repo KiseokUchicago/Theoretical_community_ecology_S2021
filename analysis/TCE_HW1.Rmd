@@ -1,0 +1,130 @@
+---
+title: "TCE_HW1"
+author: "KiseokUchicago"
+date: "2021-04-08"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=11, fig.height=9,
+                      error=TRUE, echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE)
+```
+
+## Homework1 (Models for single population)
+## Coding assignment for ECEV 43900 Theoretical Community Ecology
+Professor: **Stefano Allesina** \
+Student: **Kiseok Lee**  
+
+```{r}
+# libraries
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(ggplot2)
+```
+
+## Homework 1b
+
+Draw the bifurcation diagram for logistic growth model with harvesting:
+
+(1) write code to solve the initial value problem from a random initial condition (i.e., sampled independently from a uniform distribution between 0 and 2); document the possible outcomes.
+(2) write code to plot the bifurcation diagram—for each value of η, mark stable and unstable equilibria.
+(3) what is the critical η where a bifurcation occurs?
+
+### (1) write code to solve the initial value problem from a random initial condition (i.e., sampled independently from a uniform distribution between 0 and 2); document the possible outcomes.
+
+```{r}
+library(deSolve)
+
+# get the parameters for the model
+parameters <- c(rho = 1, alpha = 1, eta = 0.5)
+state <- c(x = runif(1,0,2))
+
+# set up the ode
+harvesting_ode <- function(t, state, parameters) {
+  with(as.list(c(state, parameters)),{
+  # rate of change
+  dx <- rho*x*(1-alpha*x)-eta*x
+  list(c(dx))
+  }) # end with(as.list ...
+}
+
+times <- seq(0, 100, by = 0.01)
+outc <- ode(state, times, harvesting_ode, parameters, method = "radau", atol = 1e-4, rtol = 1e-4)
+plot(outc, xlab = "time", ylab = "-")
+
+## plot when eta is 0
+times <- seq(0, 30, by = 0.01)
+plot(0,0, xlim=c(0,30), ylim=c(-0.05,2.05),type="n", xlab="t", ylab="X", main="x(0) randomly sampled in [0,2] when eta=0") 
+for (k in 1:50) { # number of random sampling of x(0)
+  parameters <- c(rho = 1, alpha = 1, eta = 0)
+  state <- c(x = runif(1,0,2))
+  out <- ode(state, times, harvesting_ode, parameters, method = "radau", atol = 1e-4, rtol = 1e-4)
+  points(out, pch=".")
+}
+
+## plot when eta is 0.2
+times <- seq(0, 30, by = 0.01)
+plot(0,0, xlim=c(0,30), ylim=c(-0.05,2.05),type="n", xlab="t", ylab="X", main="x(0) randomly sampled in [0,2] when eta=0.2") 
+for (k in 1:50) { # number of random sampling of x(0)
+  parameters <- c(rho = 1, alpha = 1, eta = 0.2)
+  state <- c(x = runif(1,0,2))
+  out <- ode(state, times, harvesting_ode, parameters, method = "radau", atol = 1e-4, rtol = 1e-4)
+  points(out, pch=".")
+}
+
+## plot when eta is 0.5
+times <- seq(0, 30, by = 0.01)
+plot(0,0, xlim=c(0,30), ylim=c(-0.05,2.05),type="n", xlab="t", ylab="X", main="x(0) randomly sampled in [0,2] when eta=0.5") 
+for (k in 1:50) { # number of random sampling of x(0)
+  parameters <- c(rho = 1, alpha = 1, eta = 0.5)
+  state <- c(x = runif(1,0,2))
+  out <- ode(state, times, harvesting_ode, parameters, method = "radau", atol = 1e-4, rtol = 1e-4)
+  points(out, pch=".")
+}
+
+## plot when eta is 1
+times <- seq(0, 30, by = 0.01)
+plot(0,0, xlim=c(0,30), ylim=c(-0.05,2.05),type="n", xlab="t", ylab="X", main="x(0) randomly sampled in [0,2] when eta=1") 
+for (k in 1:50) { # number of random sampling of x(0)
+  parameters <- c(rho = 1, alpha = 1, eta = 1)
+  state <- c(x = runif(1,0,2))
+  out <- ode(state, times, harvesting_ode, parameters, method = "radau", atol = 1e-4, rtol = 1e-4)
+  points(out, pch=".")
+}
+
+```
+x is converging to (rho - eta) / alpha * rho
+
+
+### (2) write code to plot the bifurcation diagram—for each value of η, mark stable and unstable equilibria.
+
+```{r}
+## Plot the Bifurcation Diagram 
+plot(0,0, xlim=c(-0.05,1.55), ylim=c(-0.05,2.05),type="n", xlab="eta", ylab="X", main="Bifurcation plot with eta") 
+times <- seq(0, 100, by = 0.01)
+for (Eta in seq(0,1.5,0.05)) { # These are the initial and final values for eta
+  parameters <- c(rho = 1, alpha = 1, eta = Eta)
+  state <- c(x = 1)
+  # state <- c(x = runif(1,0,2))
+  out <- ode(state, times, harvesting_ode, parameters, method = "radau", atol = 1e-4, rtol = 1e-4)
+  points(Eta,out[dim(out)[1],2])
+}
+# indicating stable fixed points
+x <- 0:1;y <- 1:0
+clip(0,1,0,1)
+abline(lm(y~x))
+clip(0,1,0,0)
+abline(h=0,lty = 2)
+clip(1,1.5,0,0)
+abline(h=0,lty = 1)
+
+```
+
+### (3) what is the critical η where a bifurcation occurs?
+η = 1
+
+
