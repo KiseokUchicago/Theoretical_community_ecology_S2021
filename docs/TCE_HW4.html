@@ -473,16 +473,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomKiseokUchicagoTheoreticalcommunityecologyS2021tree015b34efe5bbdf36a96f80e3ef56a1bb1921127btargetblank015b34ea"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/KiseokUchicago/Theoretical_community_ecology_S2021/tree/015b34efe5bbdf36a96f80e3ef56a1bb1921127b" target="_blank">015b34e</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomKiseokUchicagoTheoreticalcommunityecologyS2021tree973280d991c7ec8a9005afc0b74bf0e32f026c47targetblank973280da"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/KiseokUchicago/Theoretical_community_ecology_S2021/tree/973280d991c7ec8a9005afc0b74bf0e32f026c47" target="_blank">973280d</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomKiseokUchicagoTheoreticalcommunityecologyS2021tree015b34efe5bbdf36a96f80e3ef56a1bb1921127btargetblank015b34ea" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomKiseokUchicagoTheoreticalcommunityecologyS2021tree973280d991c7ec8a9005afc0b74bf0e32f026c47targetblank973280da" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/KiseokUchicago/Theoretical_community_ecology_S2021/tree/015b34efe5bbdf36a96f80e3ef56a1bb1921127b" target="_blank">015b34e</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/KiseokUchicago/Theoretical_community_ecology_S2021/tree/973280d991c7ec8a9005afc0b74bf0e32f026c47" target="_blank">973280d</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -529,6 +529,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/KiseokUchicago/Theoretical_community_ecology_S2021/blob/973280d991c7ec8a9005afc0b74bf0e32f026c47/analysis/TCE_HW4.Rmd" target="_blank">973280d</a>
+</td>
+<td>
+KiseokUchicago
+</td>
+<td>
+2021-04-28
+</td>
+<td>
+3b
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/KiseokUchicago/Theoretical_community_ecology_S2021/1ab2278497b07d3703e6a61e46ef5f3ee28c2a21/docs/TCE_HW4.html" target="_blank">1ab2278</a>
+</td>
+<td>
+KiseokUchicago
+</td>
+<td>
+2021-04-28
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -599,6 +633,351 @@ Student: <strong>Kiseok Lee</strong></p>
 <h2>Problem 3b</h2>
 <p>Consider a five-species system with symmetric, stable B (with all positive coefficients) and positive s, yielding the feasible equilibrium x*.<br />
 </p>
+<p>I did not understand what stable B means. Here I used the D-stability where B + BT is negative definite.</p>
+<ol style="list-style-type: decimal">
+<li>Finding random parameters that satisfies:</li>
+</ol>
+<ul>
+<li>B is symmetric, positive elements, stable</li>
+<li>s is positive (B-1s=x*) Bx = s</li>
+<li>x* (nontrivial fixed point exists = positive)</li>
+</ul>
+<pre class="r"><code>library(matrixcalc)
+
+# five species system
+n = 5
+
+# randomizing s
+s = runif(n, 0.001, 1)
+# randomizing B
+B = matrix(runif(n*n, 0.001, 1),n, n)
+# symmetric
+B[lower.tri(B)] = 0
+B &lt;- B + t(B)
+diag(B) &lt;- runif(n, 0.001, 1)
+isSymmetric(B)</code></pre>
+<pre><code>[1] TRUE</code></pre>
+<pre class="r"><code># x* is positive
+all(solve(B, s) &gt; 0) == T</code></pre>
+<pre><code>[1] FALSE</code></pre>
+<pre class="r"><code># B is stable &lt;=&gt; real part of eigenvalues are all negative
+# function
+rightmost &lt;- function(M){
+  eig &lt;- eigen(M, only.values = T)$values
+  # print(Re(eig)) # print all real part of eigenvalues
+  return(max(Re(eig))) # the right most eigenvalue
+} 
+rightmost(B) &lt; 0</code></pre>
+<pre><code>[1] FALSE</code></pre>
+<pre class="r"><code># finding
+# while(!((all(solve(B, s) &gt; 0) == T) &amp; (rightmost(B) &lt; 0))){
+#   # randomizing s
+#   # s = runif(n, 0.001, 1)
+#   # randomizing B
+#   B = matrix(runif(n*n, 0.001, 1),n, n)
+#   # symmetric
+#   B[lower.tri(B)] = 0
+#   B &lt;- B + t(B)
+#   diag(B) &lt;- runif(n, 0.001, 1)
+#   print(B)
+# }</code></pre>
+<p>I couldn’t get the while function to find B and s that satisfied all condition.<br />
+I loosened the B stable condition.</p>
+<pre class="r"><code>while(!(all(solve(B, s) &gt; 0) == T)){
+  # randomizing s
+  s = runif(n, 0.001, 1)
+  # randomizing B
+  B = matrix(runif(n*n, 0.001, 1),n, n)
+  # symmetric
+  B[lower.tri(B)] = 0
+  B &lt;- B + t(B)
+  diag(B) &lt;- runif(n, 0.001, 1)
+  # print(B)
+}
+
+# Found B
+B</code></pre>
+<pre><code>          [,1]       [,2]       [,3]       [,4]       [,5]
+[1,] 0.1062764 0.44184886 0.01399180 0.94286070 0.12540371
+[2,] 0.4418489 0.67575230 0.05339304 0.39680933 0.96922977
+[3,] 0.0139918 0.05339304 0.40116529 0.13344149 0.15918911
+[4,] 0.9428607 0.39680933 0.13344149 0.11167560 0.06879593
+[5,] 0.1254037 0.96922977 0.15918911 0.06879593 0.10563648</code></pre>
+<pre class="r"><code>s</code></pre>
+<pre><code>[1] 0.5517372 0.7136463 0.3264673 0.5517987 0.8425231</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li>For each possible subset of species in the pool, (i.e., for all combinations ranging from a single species [5 cases], to two species [10 cases], to all species together [1 case]), compute the corresponding equilibrium. Is it feasible? Is it stable?</li>
+</ol>
+<pre class="r"><code># for all species
+all(solve(B, s) &gt; 0) == T # feasible</code></pre>
+<pre><code>[1] TRUE</code></pre>
+<pre class="r"><code>rightmost(B) &lt; 0 # but not stable (because of the loosened condition to find B)</code></pre>
+<pre><code>[1] FALSE</code></pre>
+<pre class="r"><code># for 4 species combination
+c4 &lt;- combn(1:5, 4)
+B</code></pre>
+<pre><code>          [,1]       [,2]       [,3]       [,4]       [,5]
+[1,] 0.1062764 0.44184886 0.01399180 0.94286070 0.12540371
+[2,] 0.4418489 0.67575230 0.05339304 0.39680933 0.96922977
+[3,] 0.0139918 0.05339304 0.40116529 0.13344149 0.15918911
+[4,] 0.9428607 0.39680933 0.13344149 0.11167560 0.06879593
+[5,] 0.1254037 0.96922977 0.15918911 0.06879593 0.10563648</code></pre>
+<pre class="r"><code>for (i in 1:dim(c4)[2]){
+  # new species combination matrix
+  B_c4 &lt;- B[c4[,i],c4[,i]]
+  s4 &lt;- s[c4[,i]]
+  print(paste0(&#39;case&#39;,i))
+  print(B_c4)
+  print(paste0(&quot;Feasibility: &quot;,all(solve(B_c4, s4) &gt; 0) == T))
+  print(paste0(&quot;Stability: &quot;,rightmost(B_c4) &lt; 0))
+}</code></pre>
+<pre><code>[1] &quot;case1&quot;
+          [,1]       [,2]       [,3]      [,4]
+[1,] 0.1062764 0.44184886 0.01399180 0.9428607
+[2,] 0.4418489 0.67575230 0.05339304 0.3968093
+[3,] 0.0139918 0.05339304 0.40116529 0.1334415
+[4,] 0.9428607 0.39680933 0.13344149 0.1116756
+[1] &quot;Feasibility: TRUE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case2&quot;
+          [,1]       [,2]       [,3]      [,4]
+[1,] 0.1062764 0.44184886 0.01399180 0.1254037
+[2,] 0.4418489 0.67575230 0.05339304 0.9692298
+[3,] 0.0139918 0.05339304 0.40116529 0.1591891
+[4,] 0.1254037 0.96922977 0.15918911 0.1056365
+[1] &quot;Feasibility: FALSE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case3&quot;
+          [,1]      [,2]       [,3]       [,4]
+[1,] 0.1062764 0.4418489 0.94286070 0.12540371
+[2,] 0.4418489 0.6757523 0.39680933 0.96922977
+[3,] 0.9428607 0.3968093 0.11167560 0.06879593
+[4,] 0.1254037 0.9692298 0.06879593 0.10563648
+[1] &quot;Feasibility: FALSE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case4&quot;
+          [,1]      [,2]       [,3]       [,4]
+[1,] 0.1062764 0.0139918 0.94286070 0.12540371
+[2,] 0.0139918 0.4011653 0.13344149 0.15918911
+[3,] 0.9428607 0.1334415 0.11167560 0.06879593
+[4,] 0.1254037 0.1591891 0.06879593 0.10563648
+[1] &quot;Feasibility: FALSE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case5&quot;
+           [,1]       [,2]       [,3]       [,4]
+[1,] 0.67575230 0.05339304 0.39680933 0.96922977
+[2,] 0.05339304 0.40116529 0.13344149 0.15918911
+[3,] 0.39680933 0.13344149 0.11167560 0.06879593
+[4,] 0.96922977 0.15918911 0.06879593 0.10563648
+[1] &quot;Feasibility: FALSE&quot;
+[1] &quot;Stability: FALSE&quot;</code></pre>
+<pre class="r"><code># for 3 species combination
+c3 &lt;- combn(1:5, 3)
+B</code></pre>
+<pre><code>          [,1]       [,2]       [,3]       [,4]       [,5]
+[1,] 0.1062764 0.44184886 0.01399180 0.94286070 0.12540371
+[2,] 0.4418489 0.67575230 0.05339304 0.39680933 0.96922977
+[3,] 0.0139918 0.05339304 0.40116529 0.13344149 0.15918911
+[4,] 0.9428607 0.39680933 0.13344149 0.11167560 0.06879593
+[5,] 0.1254037 0.96922977 0.15918911 0.06879593 0.10563648</code></pre>
+<pre class="r"><code>for (i in 1:dim(c3)[2]){
+  # new species combination matrix
+  B_c3 &lt;- B[c3[,i],c3[,i]]
+  s3 &lt;- s[c3[,i]]
+  print(paste0(&#39;case&#39;,i))
+  print(B_c3)
+  print(paste0(&quot;Feasibility: &quot;,all(solve(B_c3, s3) &gt; 0) == T))
+  print(paste0(&quot;Stability: &quot;,rightmost(B_c3) &lt; 0))
+}</code></pre>
+<pre><code>[1] &quot;case1&quot;
+          [,1]       [,2]       [,3]
+[1,] 0.1062764 0.44184886 0.01399180
+[2,] 0.4418489 0.67575230 0.05339304
+[3,] 0.0139918 0.05339304 0.40116529
+[1] &quot;Feasibility: FALSE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case2&quot;
+          [,1]      [,2]      [,3]
+[1,] 0.1062764 0.4418489 0.9428607
+[2,] 0.4418489 0.6757523 0.3968093
+[3,] 0.9428607 0.3968093 0.1116756
+[1] &quot;Feasibility: TRUE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case3&quot;
+          [,1]      [,2]      [,3]
+[1,] 0.1062764 0.4418489 0.1254037
+[2,] 0.4418489 0.6757523 0.9692298
+[3,] 0.1254037 0.9692298 0.1056365
+[1] &quot;Feasibility: FALSE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case4&quot;
+          [,1]      [,2]      [,3]
+[1,] 0.1062764 0.0139918 0.9428607
+[2,] 0.0139918 0.4011653 0.1334415
+[3,] 0.9428607 0.1334415 0.1116756
+[1] &quot;Feasibility: TRUE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case5&quot;
+          [,1]      [,2]      [,3]
+[1,] 0.1062764 0.0139918 0.1254037
+[2,] 0.0139918 0.4011653 0.1591891
+[3,] 0.1254037 0.1591891 0.1056365
+[1] &quot;Feasibility: FALSE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case6&quot;
+          [,1]       [,2]       [,3]
+[1,] 0.1062764 0.94286070 0.12540371
+[2,] 0.9428607 0.11167560 0.06879593
+[3,] 0.1254037 0.06879593 0.10563648
+[1] &quot;Feasibility: FALSE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case7&quot;
+           [,1]       [,2]      [,3]
+[1,] 0.67575230 0.05339304 0.3968093
+[2,] 0.05339304 0.40116529 0.1334415
+[3,] 0.39680933 0.13344149 0.1116756
+[1] &quot;Feasibility: FALSE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case8&quot;
+           [,1]       [,2]      [,3]
+[1,] 0.67575230 0.05339304 0.9692298
+[2,] 0.05339304 0.40116529 0.1591891
+[3,] 0.96922977 0.15918911 0.1056365
+[1] &quot;Feasibility: TRUE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case9&quot;
+          [,1]       [,2]       [,3]
+[1,] 0.6757523 0.39680933 0.96922977
+[2,] 0.3968093 0.11167560 0.06879593
+[3,] 0.9692298 0.06879593 0.10563648
+[1] &quot;Feasibility: FALSE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case10&quot;
+          [,1]       [,2]       [,3]
+[1,] 0.4011653 0.13344149 0.15918911
+[2,] 0.1334415 0.11167560 0.06879593
+[3,] 0.1591891 0.06879593 0.10563648
+[1] &quot;Feasibility: FALSE&quot;
+[1] &quot;Stability: FALSE&quot;</code></pre>
+<pre class="r"><code># for 2 species combination
+c2 &lt;- combn(1:5, 2)
+B</code></pre>
+<pre><code>          [,1]       [,2]       [,3]       [,4]       [,5]
+[1,] 0.1062764 0.44184886 0.01399180 0.94286070 0.12540371
+[2,] 0.4418489 0.67575230 0.05339304 0.39680933 0.96922977
+[3,] 0.0139918 0.05339304 0.40116529 0.13344149 0.15918911
+[4,] 0.9428607 0.39680933 0.13344149 0.11167560 0.06879593
+[5,] 0.1254037 0.96922977 0.15918911 0.06879593 0.10563648</code></pre>
+<pre class="r"><code>for (i in 1:dim(c2)[2]){
+  # new species combination matrix
+  B_c2 &lt;- B[c2[,i],c2[,i]]
+  s2 &lt;- s[c2[,i]]
+  print(paste0(&#39;case&#39;,i))
+  print(B_c2)
+  print(paste0(&quot;Feasibility: &quot;,all(solve(B_c2, s2) &gt; 0) == T))
+  print(paste0(&quot;Stability: &quot;,rightmost(B_c2) &lt; 0))
+}</code></pre>
+<pre><code>[1] &quot;case1&quot;
+          [,1]      [,2]
+[1,] 0.1062764 0.4418489
+[2,] 0.4418489 0.6757523
+[1] &quot;Feasibility: FALSE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case2&quot;
+          [,1]      [,2]
+[1,] 0.1062764 0.0139918
+[2,] 0.0139918 0.4011653
+[1] &quot;Feasibility: TRUE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case3&quot;
+          [,1]      [,2]
+[1,] 0.1062764 0.9428607
+[2,] 0.9428607 0.1116756
+[1] &quot;Feasibility: TRUE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case4&quot;
+          [,1]      [,2]
+[1,] 0.1062764 0.1254037
+[2,] 0.1254037 0.1056365
+[1] &quot;Feasibility: FALSE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case5&quot;
+           [,1]       [,2]
+[1,] 0.67575230 0.05339304
+[2,] 0.05339304 0.40116529
+[1] &quot;Feasibility: TRUE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case6&quot;
+          [,1]      [,2]
+[1,] 0.6757523 0.3968093
+[2,] 0.3968093 0.1116756
+[1] &quot;Feasibility: FALSE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case7&quot;
+          [,1]      [,2]
+[1,] 0.6757523 0.9692298
+[2,] 0.9692298 0.1056365
+[1] &quot;Feasibility: TRUE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case8&quot;
+          [,1]      [,2]
+[1,] 0.4011653 0.1334415
+[2,] 0.1334415 0.1116756
+[1] &quot;Feasibility: FALSE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case9&quot;
+          [,1]      [,2]
+[1,] 0.4011653 0.1591891
+[2,] 0.1591891 0.1056365
+[1] &quot;Feasibility: FALSE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case10&quot;
+           [,1]       [,2]
+[1,] 0.11167560 0.06879593
+[2,] 0.06879593 0.10563648
+[1] &quot;Feasibility: TRUE&quot;
+[1] &quot;Stability: FALSE&quot;</code></pre>
+<pre class="r"><code># for 1 species combination
+c1 &lt;- combn(1:5, 1)
+B</code></pre>
+<pre><code>          [,1]       [,2]       [,3]       [,4]       [,5]
+[1,] 0.1062764 0.44184886 0.01399180 0.94286070 0.12540371
+[2,] 0.4418489 0.67575230 0.05339304 0.39680933 0.96922977
+[3,] 0.0139918 0.05339304 0.40116529 0.13344149 0.15918911
+[4,] 0.9428607 0.39680933 0.13344149 0.11167560 0.06879593
+[5,] 0.1254037 0.96922977 0.15918911 0.06879593 0.10563648</code></pre>
+<pre class="r"><code>for (i in 1:dim(c1)[2]){
+  # new species combination matrix
+  B_c1 &lt;- B[c1[,i],c1[,i]]
+  s1 &lt;- s[c1[,i]]
+  print(paste0(&#39;case&#39;,i))
+  print(B_c1)
+  print(paste0(&quot;Feasibility: &quot;,all(solve(B_c1, s1) &gt; 0) == T))
+  print(paste0(&quot;Stability: &quot;,rightmost(B_c1) &lt; 0))
+}</code></pre>
+<pre><code>[1] &quot;case1&quot;
+[1] 0.1062764
+[1] &quot;Feasibility: TRUE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case2&quot;
+[1] 0.6757523
+[1] &quot;Feasibility: TRUE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case3&quot;
+[1] 0.4011653
+[1] &quot;Feasibility: TRUE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case4&quot;
+[1] 0.1116756
+[1] &quot;Feasibility: TRUE&quot;
+[1] &quot;Stability: FALSE&quot;
+[1] &quot;case5&quot;
+[1] 0.1056365
+[1] &quot;Feasibility: TRUE&quot;
+[1] &quot;Stability: FALSE&quot;</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li>Take two subset of species such that a) both are feasible and stable; b) subset 1 contains subset 2 (i.e., all species in 2 are in 1, but not the converse); c) the value of V(x*) for subset 1 is larger than that for subset 2. Try invading subset 2 with the species by introducing at the equilibrium of subset 2 the species that are in subset 1 but not in 2—starting all of them at low density. What happens?</li>
+</ol>
 </div>
 <div id="problem-4a" class="section level2">
 <h2>Problem 4a</h2>
@@ -618,7 +997,7 @@ rightmost &lt;- function(M){
 } 
 
 rightmost(M)</code></pre>
-<pre><code>[1] 3.234824</code></pre>
+<pre><code>[1] 2.290694</code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li>Write code to build matrices like those studied by May (nonzero elements sampled from a normal distribution)</li>
 </ol>
@@ -641,12 +1020,12 @@ may_matrix &lt;- function(sigma, C, n, d){
 }
 
 may_matrix(sigma, C, n, d)</code></pre>
-<pre><code>         [,1] [,2] [,3]        [,4]        [,5]
-[1,] -10.0000    0    0   0.0000000   0.4214842
-[2,]   0.0000  -10    0  -0.1462096   0.5733901
-[3,]   0.3194    0  -10   0.0000000   0.0000000
-[4,]   0.0000    0    0 -10.0000000   0.0000000
-[5,]   0.0000    0    0   0.0000000 -10.0000000</code></pre>
+<pre><code>            [,1]        [,2]        [,3]        [,4]        [,5]
+[1,] -10.0000000   0.0000000  -1.2047814   0.0000000   0.0000000
+[2,]   0.0000000 -10.0000000   0.0000000   0.0000000   0.9566490
+[3,]   0.0000000   0.8415704 -10.0000000   0.0000000  -0.9707643
+[4,]  -0.9310911   0.0000000  -0.7754766 -10.0000000   0.0000000
+[5,]   0.0000000   0.0000000   0.0000000   0.2513598 -10.0000000</code></pre>
 <ol start="3" style="list-style-type: decimal">
 <li>Set d=10 and choose parameters n, C, and σ^2 such that you are close to the critical point (make sure n and C are large enough, for example nC &gt; 10). Draw 1000 random matrices and compute the probability drawing a stable matrix.</li>
 </ol>
@@ -674,7 +1053,7 @@ for (i in 1:num_random){
 
 # probability drawing a stable matrix
 sum(stable_list)/num_random</code></pre>
-<pre><code>[1] 0.813</code></pre>
+<pre><code>[1] 0.807</code></pre>
 <ol start="4" style="list-style-type: decimal">
 <li>Vary n, C, and sigma^2 in turn, making them cross the critical point. Draw a graph where the probability of stability is on the y axis, the x axis measures sqrt(nCsigma^2). The graph should look like the one reported below:</li>
 </ol>
@@ -742,7 +1121,7 @@ library(ggplot2)
 # plot
 ggplot(df_merge,aes(x = x,y = y)) + geom_point(aes(shape=varying), size=3, color=&#39;maroon&#39;) + theme_bw() +
   labs(title=&quot;Probability of matrix being stable depending on C, n, and sigma \n&quot;, x=&quot;\n sqrt(n*C*(sigma^2))&quot;,y=&quot;probability of having stable community matrix \n&quot;)</code></pre>
-<p><img src="figure/TCE_HW4.Rmd/unnamed-chunk-4-1.png" width="1056" style="display: block; margin: auto;" /></p>
+<p><img src="figure/TCE_HW4.Rmd/unnamed-chunk-8-1.png" width="1056" style="display: block; margin: auto;" /></p>
 </div>
 <div id="problem-4b" class="section level2">
 <h2>Problem 4b</h2>
@@ -787,28 +1166,28 @@ twogroup_matrix &lt;- function(sigma=0.5, n, mu1=-1,mu2=-0.5){
 }
 
 twogroup_matrix(sigma=0.5, n=10, mu1=-1,mu2=-0.5)</code></pre>
-<pre><code>             [,1]       [,2]       [,3]       [,4]        [,5]       [,6]
- [1,] -5.00000000 -0.9503132 -0.6264303 -1.4415236  0.11456593 -0.8841778
- [2,] -1.47897821 -5.0000000 -2.0476298 -0.5079577 -1.35659408 -0.2229945
- [3,] -1.80786241 -1.4016773 -5.0000000 -1.1712472 -0.92098413 -0.6703893
- [4,] -0.91201163 -1.4805024 -1.5875846 -5.0000000 -0.99753520 -0.7186831
- [5,] -0.95980455 -1.3610500 -1.5034865 -0.9613879 -5.00000000 -0.5764343
- [6,] -0.73656197 -0.5952912 -0.7716384 -0.2424572 -0.84262652 -5.0000000
- [7,] -0.37117636 -1.0904533 -0.9220649 -0.6646386  0.28866373 -1.5165411
- [8,] -0.07548809  0.0557655 -0.8169991  0.5913483 -0.74336644 -1.4903877
- [9,] -1.13183001  0.2085696 -0.2341407 -1.3800827 -0.05009089 -0.6590890
-[10,] -0.35333032 -0.4645341 -0.4258941 -0.4562446 -0.24128881 -0.3605065
-             [,7]       [,8]       [,9]      [,10]
- [1,] -0.41195882 -0.6567927 -0.0725780  0.3657824
- [2,]  0.02700335 -0.1927194 -0.8610325 -0.9582522
- [3,] -0.45006051 -1.5452824 -1.6531455 -0.3943584
- [4,] -1.25347313 -0.1515633 -0.5973469  0.2216467
- [5,] -0.46419961 -0.8938513 -1.3417423 -0.7207508
- [6,] -2.15520542 -1.1770143 -0.7048326 -1.2233158
- [7,] -5.00000000 -1.7014081 -0.1134977 -0.9556004
- [8,] -1.03785333 -5.0000000 -0.8403254 -1.0823106
- [9,] -0.77270701 -1.2997027 -5.0000000 -1.4008856
-[10,] -0.90706651 -0.8681985 -0.9718103 -5.0000000</code></pre>
+<pre><code>             [,1]       [,2]        [,3]       [,4]       [,5]       [,6]
+ [1,] -5.00000000 -1.3057707 -0.89745414 -0.7901084 -0.9875040 -0.9509652
+ [2,] -1.19415111 -5.0000000 -1.48504397 -1.4882889 -1.5264726 -0.2331326
+ [3,] -0.82761468 -1.0629045 -5.00000000 -1.4834298 -0.3139806 -0.8549285
+ [4,] -0.62138421 -0.9511735 -1.92741169 -5.0000000 -0.5152963 -0.3125054
+ [5,] -1.24796138 -1.7909862 -1.42075045 -1.1594126 -5.0000000 -0.7156448
+ [6,]  0.05098113 -0.5700429 -0.08189117 -1.2572924 -1.6387840 -5.0000000
+ [7,] -0.84159456  0.1038283 -0.91672924 -0.7167513 -0.7884239 -1.6341326
+ [8,] -0.67454232 -0.3617662 -0.36396502 -1.3698018 -0.3590175 -1.5932885
+ [9,] -0.70337695 -0.5177955  0.48920488 -0.1173552 -0.6636540 -0.8336756
+[10,]  0.28178496 -0.2605737 -0.87223082 -0.6484699 -0.1822524 -1.7524385
+            [,7]       [,8]       [,9]       [,10]
+ [1,] -0.3099581 -0.3918000 -0.9645378 -0.33420451
+ [2,] -0.3250214 -0.7942336 -0.3972033 -0.60885947
+ [3,] -0.2546833 -0.4105394 -1.0297885 -0.02022986
+ [4,] -1.3018955 -0.9146624 -0.4715968 -0.88333685
+ [5,] -0.2496547 -0.7410125 -0.1170315 -0.23855456
+ [6,] -0.8673576 -1.5861364 -1.5996146 -1.39981537
+ [7,] -5.0000000  0.2395194 -0.6358012 -1.14733683
+ [8,] -1.7071965 -5.0000000 -0.1177300 -1.45646050
+ [9,] -1.0571101 -1.4606043 -5.0000000 -0.60072164
+[10,] -2.2867852 -0.5719952 -1.0600368 -5.00000000</code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li>Analyze the eigenvalue space:</li>
 </ol>
@@ -818,7 +1197,7 @@ df_eig &lt;- data.frame(Real_lambda = Re(eig), Im_lambda = Im(eig))
 ggplot(df_eig,aes(x = Real_lambda,y = Im_lambda)) + geom_point(size=3, color=&#39;maroon&#39;) + theme_bw() +
   scale_x_continuous(limits = c(min(Re(eig)), abs(min(Re(eig)))))+
   labs(title=&quot;Eigenvalue distribution \n&quot;, x=&quot;\n Real part of eigenvalue&quot;,y=&quot;Imaginary part of eigenvalue \n&quot;)</code></pre>
-<p><img src="figure/TCE_HW4.Rmd/unnamed-chunk-6-1.png" width="1056" style="display: block; margin: auto;" /></p>
+<p><img src="figure/TCE_HW4.Rmd/unnamed-chunk-10-1.png" width="1056" style="display: block; margin: auto;" /></p>
 <ol start="3" style="list-style-type: decimal">
 <li>Do with multiple random matrices:</li>
 </ol>
@@ -834,7 +1213,7 @@ for (i in 1:n_random){
 
 ggplot(df_eig,aes(x = Real_lambda,y = Im_lambda)) + geom_point(size=3, aes(color=num_random)) + theme_bw() +
   labs(title=&quot;Eigenvalue distribution \n&quot;, x=&quot;\n Real part of eigenvalue&quot;,y=&quot;Imaginary part of eigenvalue \n&quot;)</code></pre>
-<p><img src="figure/TCE_HW4.Rmd/unnamed-chunk-7-1.png" width="1056" style="display: block; margin: auto;" /></p>
+<p><img src="figure/TCE_HW4.Rmd/unnamed-chunk-11-1.png" width="1056" style="display: block; margin: auto;" /></p>
 <ol start="4" style="list-style-type: decimal">
 <li>The left most eigenvalue value changes with change of n</li>
 </ol>
@@ -856,7 +1235,7 @@ for (n_species in seq(10,500,by=10)){
 ggplot(df_leftmost,aes(x = n_species,y = leftmost_re_eig)) + geom_point(size=1, shape=1) + theme_bw() +
   geom_smooth(method=&#39;lm&#39;, formula= y~x, size=0.1, color = &#39;red&#39;)+
   labs(title=&quot;Left most eigenvalue&#39;s real part changes with matrix size \n&quot;, x=&quot;\n Number of species (community matrix size)&quot;,y=&quot;Left most real part of eigenvaluee \n&quot;)</code></pre>
-<p><img src="figure/TCE_HW4.Rmd/unnamed-chunk-8-1.png" width="1056" style="display: block; margin: auto;" /></p>
+<p><img src="figure/TCE_HW4.Rmd/unnamed-chunk-12-1.png" width="1056" style="display: block; margin: auto;" /></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -882,7 +1261,7 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] ggplot2_3.3.3   workflowr_1.6.2
+[1] ggplot2_3.3.3    matrixcalc_1.0-3 workflowr_1.6.2 
 
 loaded via a namespace (and not attached):
  [1] Rcpp_1.0.5        highr_0.8         pillar_1.5.1      compiler_4.0.3   
