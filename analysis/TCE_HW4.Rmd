@@ -1,0 +1,162 @@
+---
+title: "TCE_HW4"
+author: "KiseokUchicago"
+date: "2021-04-27"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=11, fig.height=9,
+                      error=TRUE, echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE)
+```
+
+## Homework4 (3b, 4a, 4b)
+## Coding assignment for ECEV 43900 Theoretical Community Ecology
+Professor: **Stefano Allesina** \
+Student: **Kiseok Lee**  
+
+## Problem 4a
+
+(1) Write code to compute the real part for the “rightmost” eigenvalue of a random matrix (Note: computing eigenvalues is fairly expensive in terms of computing time. Use eigen(M, only.values = TRUE)$values to speed up calculations).
+```{r}
+# define matrix M and A
+# M = A * x
+n = 5
+M = matrix(runif(n*n, 0, 1),n, n)
+
+# function
+rightmost <- function(M){
+  eig <- eigen(M, only.values = T)$values
+  # print(Re(eig)) # print all real part of eigenvalues
+  return(max(Re(eig))) # the right most eigenvalue
+} 
+
+rightmost(M)
+```
+
+(2) Write code to build matrices like those studied by May (nonzero elements sampled from a normal distribution)
+
+May's matrix: Mij = 0 with probability (1-C); with probability C we draw Mij from a distribution with mean zero and variance σ^2. \  
+C is the proportion of realized connections, termed the “connectance” of the system.\
+the diagonal elements are set to −d, modeling self-regulation.
+
+```{r}
+n = 5
+sigma = 1
+C = 0.3   # connectance
+d = 10
+
+# May matrix generating function
+may_matrix <- function(sigma, C, n, d){
+  M = matrix(rnorm(n*n, mean=0, sd=sigma),n, n)
+  # then make elements 0 with probability of 1-C
+  M_prob <- matrix(rbinom(n*n, size=1, prob=C),n, n)
+  # apply probability
+  May_M <- M * M_prob
+  diag(May_M) <- -d 
+  return(May_M)
+}
+
+may_matrix(sigma, C, n, d)
+
+```
+
+(3) Set d=10 and choose parameters n, C, and σ^2 such that you are close to the critical point (make sure n and C are large enough, for example nC > 10). Draw 1000 random matrices and compute the probability drawing a stable matrix.
+
+```{r}
+d = 10
+n = 300
+C = 0.4
+sigma=0.9
+
+# stability condition
+sqrt(n*C*(sigma^2)) # 9.859006
+d # 10
+sqrt(n*C*(sigma^2)) < d # True
+
+# generate 1000 random matrices
+num_random = 1000
+stable_list = rep(-1,num_random) # vector that stores information of stable (true=1) vs unstable (false=0)
+
+for (i in 1:num_random){
+  m <- may_matrix(sigma, C, n, d)
+  # print(rightmost(m))
+  stable_list[i] <- rightmost(m)<0
+}
+
+# probability drawing a stable matrix
+sum(stable_list)/num_random
+
+```
+
+(4) Vary n, C, and sigma^2 in turn, making them cross the critical point. Draw a graph where the probability of stability is on the y axis, the x axis measures sqrt(nCsigma^2). The graph should look like the one reported below:
+
+```{r}
+# function for calculating stability
+prob_stability <- function(num_random=1000, sigma, C, n, d=10){
+  stable_list = rep(-1,num_random) # vector that stores information of stable (true=1) vs unstable (false=0)
+  for (i in 1:num_random){
+    m <- may_matrix(sigma, C, n, d)
+    # print(rightmost(m))
+    stable_list[i] <- rightmost(m)<0
+  }
+  return(sum(stable_list)/num_random)
+}
+
+# creating dataframe for changing values
+# (1) changing C from 0.3 to 0.5. n = 300, sigma=0.9
+vec_C <- seq(0.25, 0.55, length.out=16)
+n = 300; sigma=0.9
+# x axis
+sqrt(n*vec_C*(sigma^2))
+# y axis
+vec_prob1 <- rep(-1,length(vec_C))
+for (i in 1:length(vec_C)){
+  vec_prob1[i] <- prob_stability(num_random=100, sigma=0.9, C=vec_C[i], n = 300, d=10)
+}
+
+# (2) Changing sigma from 0.7 to 1.1 & n = 300; C = 0.4
+vec_sigma <- seq(0.7, 1.1, length.out=16)
+n = 300; C = 0.4
+# x axis
+sqrt(n*C*(vec_sigma^2))
+# y axis
+vec_prob2 <- rep(-1,length(vec_sigma))
+for (i in 1:length(vec_sigma)){
+  vec_prob2[i] <- prob_stability(num_random=100, sigma=vec_sigma[i], C=0.4, n = 300, d=10)
+}
+
+# (3) changing n from 180 to 430 & C = 0.4; sigma=0.9
+vec_n <- seq(180, 430, length.out=16)
+C = 0.4; sigma=0.9
+# x axis
+sqrt(vec_n*C*(sigma^2))
+# y axis
+vec_prob3 <- rep(-1,length(vec_n))
+for (i in 1:length(vec_n)){
+  vec_prob3[i] <- prob_stability(num_random=100, sigma=0.9, C=0.4, n = vec_n[i], d=10)
+}
+
+## bind the results into single dataframe
+df1 <- data.frame(x=sqrt(n*vec_C*(sigma^2)),y=vec_prob1,varying="C")
+df2 <- data.frame(x=sqrt(n*C*(vec_sigma^2)),y=vec_prob2,varying="sigma")
+df3 <- data.frame(x=sqrt(vec_n*C*(sigma^2)),y=vec_prob3,varying="n")
+df_merge <- rbind(df1, df2, df3)
+
+library(ggplot2)
+# plot
+ggplot(df_merge,aes(x = x,y = y)) + geom_point(aes(shape=varying), size=3, color='maroon') + theme_bw() +
+  labs(title="Probability of matrix being stable depending on C, n, and sigma \n", x="\n sqrt(n*C*(sigma^2))",y="probability of having stable community matrix \n")
+
+```
+
+## Problem 4b
+
+
+
+
+
+
+
