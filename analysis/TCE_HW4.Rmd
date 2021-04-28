@@ -17,6 +17,16 @@ knitr::opts_chunk$set(fig.width=11, fig.height=9,
 Professor: **Stefano Allesina** \
 Student: **Kiseok Lee**  
 
+## Problem 3b
+
+Consider a five-species system with symmetric, stable B (with all positive coefficients) and positive s, yielding the feasible equilibrium x*.\
+
+
+
+
+
+
+
 ## Problem 4a
 
 (1) Write code to compute the real part for the “rightmost” eigenvalue of a random matrix (Note: computing eigenvalues is fairly expensive in terms of computing time. Use eigen(M, only.values = TRUE)$values to speed up calculations).
@@ -153,6 +163,104 @@ ggplot(df_merge,aes(x = x,y = y)) + geom_point(aes(shape=varying), size=3, color
 ```
 
 ## Problem 4b
+
+Study the spectrum of the community matrix of a competitive community in which species are divided into two groups (e.g., benthic, pelagic), and interactions are as follow:
+
+Community matrix conditions:
+1. Mii (diagonal) = -5 \
+2. Mij when species i and j is in the same group, Mij ~ N(mu1, sigma^2)\
+3. Mij when species i and j is in the different group, Mij ~ N(mu2, sigma^2)\
+4. There are only two groups and the number of species in each group is the same.
+
+(1) Now we are constructing matrix with the conditions above:
+```{r}
+# parameters setting
+n = 10
+sigma = 1/2
+mu1 = -1   # connectance
+mu2 = -1/2
+
+# Matrix generating function
+# let's say everytime we cluster the species in the same group together in the matrix.
+# so that we can make structured matrix.
+
+twogroup_matrix <- function(sigma=0.5, n, mu1=-1,mu2=-0.5){
+  M = matrix(rep(0,n*n),n,n)
+  for (i in 1:n){
+    for (j in 1:n){
+      if(i != j){
+        # print(paste0(i,',',j))
+        # group 1 is species {1, 2, ..., n/2}
+        # group 2 is species {(n/2)+1, ..., n}
+        if ((i<= n/2 & j<= n/2) | (i> n/2 & j> n/2)){ # for i and j in the same group
+          M[i,j] <- rnorm(1, mean=mu1, sd=sigma)
+          # print(M[i,j]) # testing
+        } else{ # # for i and j in the different group
+          M[i,j] <- rnorm(1, mean=mu2, sd=sigma)
+          # print(M[i,j]) # testing
+        }
+      }
+    }
+  }
+  diag(M) <- -5 
+  return(M)
+}
+
+twogroup_matrix(sigma=0.5, n=10, mu1=-1,mu2=-0.5)
+
+```
+
+(2) Analyze the eigenvalue space:
+
+```{r}
+
+eig <- eigen(twogroup_matrix(sigma=0.5, n=1000, mu1=-1,mu2=-0.5), only.values = T)$values
+df_eig <- data.frame(Real_lambda = Re(eig), Im_lambda = Im(eig))
+
+ggplot(df_eig,aes(x = Real_lambda,y = Im_lambda)) + geom_point(size=3, color='maroon') + theme_bw() +
+  scale_x_continuous(limits = c(min(Re(eig)), abs(min(Re(eig)))))+
+  labs(title="Eigenvalue distribution \n", x="\n Real part of eigenvalue",y="Imaginary part of eigenvalue \n")
+```
+
+(3) Do with multiple random matrices:
+```{r}
+n_random = 50
+
+df_eig <- data.frame(Real_lambda = NULL, Im_lambda = NULL, num_random=NULL)
+for (i in 1:n_random){
+  # 100 species commuity matrix's eigen value
+  eig <- eigen(twogroup_matrix(sigma=0.5, n=100, mu1=-1,mu2=-0.5), only.values = T)$values
+  df_eig_add <- data.frame(Real_lambda = Re(eig), Im_lambda = Im(eig), num_random=i)
+  df_eig <- rbind(df_eig, df_eig_add)
+}
+
+ggplot(df_eig,aes(x = Real_lambda,y = Im_lambda)) + geom_point(size=3, aes(color=num_random)) + theme_bw() +
+  labs(title="Eigenvalue distribution \n", x="\n Real part of eigenvalue",y="Imaginary part of eigenvalue \n")
+```
+
+(4) The left most eigenvalue value changes with change of n
+```{r}
+df_leftmost <- data.frame(n_species = NULL, leftmost_re_eig =NULL)
+# from 10 species to 1000 species (only even number of species can devide into 2 groups)
+for (n_species in seq(10,500,by=10)){
+  # 10 randomization
+  n_rand = 10
+  min_re_eig = rep(0,n_rand)
+  for (i in (1:n_rand)){
+    eig_val <- eigen(twogroup_matrix(sigma=0.5, n=n_species, mu1=-1,mu2=-0.5), only.values = T)$values
+    min_re_eig[i] <- min(Re(eig_val))
+  }
+  df_leftmost_add <- data.frame(n_species = rep(n_species,n_rand), leftmost_re_eig = min_re_eig)
+  df_leftmost <- rbind(df_leftmost, df_leftmost_add)
+}
+
+# plot
+ggplot(df_leftmost,aes(x = n_species,y = leftmost_re_eig)) + geom_point(size=1, shape=1) + theme_bw() +
+  geom_smooth(method='lm', formula= y~x, size=0.1, color = 'red')+
+  labs(title="Left most eigenvalue's real part changes with matrix size \n", x="\n Number of species (community matrix size)",y="Left most real part of eigenvaluee \n")
+
+```
+
 
 
 
