@@ -21,10 +21,141 @@ Student: **Kiseok Lee**
 
 Consider a five-species system with symmetric, stable B (with all positive coefficients) and positive s, yielding the feasible equilibrium x*.\
 
+I did not understand what stable B means. Here I used the D-stability where B + BT is negative definite.
+
+(1) Finding random parameters that satisfies:
+- B is symmetric, positive elements, stable
+- s is positive (B-1s=x*) Bx = s
+- x* (nontrivial fixed point exists = positive)
+
+```{r}
+library(matrixcalc)
+
+# five species system
+n = 5
+
+# randomizing s
+s = runif(n, 0.001, 1)
+# randomizing B
+B = matrix(runif(n*n, 0.001, 1),n, n)
+# symmetric
+B[lower.tri(B)] = 0
+B <- B + t(B)
+diag(B) <- runif(n, 0.001, 1)
+isSymmetric(B)
+# x* is positive
+all(solve(B, s) > 0) == T
+# B is stable <=> real part of eigenvalues are all negative
+# function
+rightmost <- function(M){
+  eig <- eigen(M, only.values = T)$values
+  # print(Re(eig)) # print all real part of eigenvalues
+  return(max(Re(eig))) # the right most eigenvalue
+} 
+rightmost(B) < 0
+
+# finding
+# while(!((all(solve(B, s) > 0) == T) & (rightmost(B) < 0))){
+#   # randomizing s
+#   # s = runif(n, 0.001, 1)
+#   # randomizing B
+#   B = matrix(runif(n*n, 0.001, 1),n, n)
+#   # symmetric
+#   B[lower.tri(B)] = 0
+#   B <- B + t(B)
+#   diag(B) <- runif(n, 0.001, 1)
+#   print(B)
+# }
+```
+
+I couldn't get the while function to find B and s that satisfied all condition.\
+I loosened the B stable condition.
+```{r}
+while(!(all(solve(B, s) > 0) == T)){
+  # randomizing s
+  s = runif(n, 0.001, 1)
+  # randomizing B
+  B = matrix(runif(n*n, 0.001, 1),n, n)
+  # symmetric
+  B[lower.tri(B)] = 0
+  B <- B + t(B)
+  diag(B) <- runif(n, 0.001, 1)
+  # print(B)
+}
+
+# Found B
+B
+s
+```
 
 
+(2) For each possible subset of species in the pool, (i.e., for all combinations ranging from a single species [5 cases], to two species [10 cases], to all species together [1 case]), compute the corresponding equilibrium. Is it feasible? Is it stable?
 
+```{r}
 
+# for all species
+all(solve(B, s) > 0) == T # feasible
+rightmost(B) < 0 # but not stable (because of the loosened condition to find B)
+
+# for 4 species combination
+c4 <- combn(1:5, 4)
+B
+for (i in 1:dim(c4)[2]){
+  # new species combination matrix
+  B_c4 <- B[c4[,i],c4[,i]]
+  s4 <- s[c4[,i]]
+  print(paste0('case',i))
+  print(B_c4)
+  print(paste0("Feasibility: ",all(solve(B_c4, s4) > 0) == T))
+  print(paste0("Stability: ",rightmost(B_c4) < 0))
+}
+
+# for 3 species combination
+c3 <- combn(1:5, 3)
+B
+for (i in 1:dim(c3)[2]){
+  # new species combination matrix
+  B_c3 <- B[c3[,i],c3[,i]]
+  s3 <- s[c3[,i]]
+  print(paste0('case',i))
+  print(B_c3)
+  print(paste0("Feasibility: ",all(solve(B_c3, s3) > 0) == T))
+  print(paste0("Stability: ",rightmost(B_c3) < 0))
+}
+
+# for 2 species combination
+c2 <- combn(1:5, 2)
+B
+for (i in 1:dim(c2)[2]){
+  # new species combination matrix
+  B_c2 <- B[c2[,i],c2[,i]]
+  s2 <- s[c2[,i]]
+  print(paste0('case',i))
+  print(B_c2)
+  print(paste0("Feasibility: ",all(solve(B_c2, s2) > 0) == T))
+  print(paste0("Stability: ",rightmost(B_c2) < 0))
+}
+
+# for 1 species combination
+c1 <- combn(1:5, 1)
+B
+for (i in 1:dim(c1)[2]){
+  # new species combination matrix
+  B_c1 <- B[c1[,i],c1[,i]]
+  s1 <- s[c1[,i]]
+  print(paste0('case',i))
+  print(B_c1)
+  print(paste0("Feasibility: ",all(solve(B_c1, s1) > 0) == T))
+  print(paste0("Stability: ",rightmost(B_c1) < 0))
+}
+
+```
+
+(3) Take two subset of species such that a) both are feasible and stable; b) subset 1 contains subset 2 (i.e., all species in 2 are in 1, but not the converse); c) the value of V(x*) for subset 1 is larger than that for subset 2. Try invading subset 2 with the species by introducing at the equilibrium of subset 2 the species that are in subset 1 but not in 2—starting all of them at low density. What happens?
+
+```{r}
+
+```
 
 
 ## Problem 4a
