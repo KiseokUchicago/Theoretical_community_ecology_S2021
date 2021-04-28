@@ -382,7 +382,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2021-04-27
+<strong>Last updated:</strong> 2021-04-28
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -473,16 +473,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomKiseokUchicagoTheoreticalcommunityecologyS2021tree2338883f95a4754bd82919bb7559669d3f6a2e4ftargetblank2338883a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/KiseokUchicago/Theoretical_community_ecology_S2021/tree/2338883f95a4754bd82919bb7559669d3f6a2e4f" target="_blank">2338883</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomKiseokUchicagoTheoreticalcommunityecologyS2021tree015b34efe5bbdf36a96f80e3ef56a1bb1921127btargetblank015b34ea"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/KiseokUchicago/Theoretical_community_ecology_S2021/tree/015b34efe5bbdf36a96f80e3ef56a1bb1921127b" target="_blank">015b34e</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomKiseokUchicagoTheoreticalcommunityecologyS2021tree2338883f95a4754bd82919bb7559669d3f6a2e4ftargetblank2338883a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomKiseokUchicagoTheoreticalcommunityecologyS2021tree015b34efe5bbdf36a96f80e3ef56a1bb1921127btargetblank015b34ea" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/KiseokUchicago/Theoretical_community_ecology_S2021/tree/2338883f95a4754bd82919bb7559669d3f6a2e4f" target="_blank">2338883</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/KiseokUchicago/Theoretical_community_ecology_S2021/tree/015b34efe5bbdf36a96f80e3ef56a1bb1921127b" target="_blank">015b34e</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -534,6 +534,40 @@ Message
 Rmd
 </td>
 <td>
+<a href="https://github.com/KiseokUchicago/Theoretical_community_ecology_S2021/blob/015b34efe5bbdf36a96f80e3ef56a1bb1921127b/analysis/TCE_HW4.Rmd" target="_blank">015b34e</a>
+</td>
+<td>
+KiseokUchicago
+</td>
+<td>
+2021-04-28
+</td>
+<td>
+4b
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/KiseokUchicago/Theoretical_community_ecology_S2021/0edea6e7cd67d4f5ff59a17286d94dc6492bf040/docs/TCE_HW4.html" target="_blank">0edea6e</a>
+</td>
+<td>
+KiseokUchicago
+</td>
+<td>
+2021-04-27
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
 <a href="https://github.com/KiseokUchicago/Theoretical_community_ecology_S2021/blob/2338883f95a4754bd82919bb7559669d3f6a2e4f/analysis/TCE_HW4.Rmd" target="_blank">2338883</a>
 </td>
 <td>
@@ -560,6 +594,11 @@ HW4
 <h2>Coding assignment for ECEV 43900 Theoretical Community Ecology</h2>
 <p>Professor: <strong>Stefano Allesina</strong><br />
 Student: <strong>Kiseok Lee</strong></p>
+</div>
+<div id="problem-3b" class="section level2">
+<h2>Problem 3b</h2>
+<p>Consider a five-species system with symmetric, stable B (with all positive coefficients) and positive s, yielding the feasible equilibrium x*.<br />
+</p>
 </div>
 <div id="problem-4a" class="section level2">
 <h2>Problem 4a</h2>
@@ -707,6 +746,117 @@ ggplot(df_merge,aes(x = x,y = y)) + geom_point(aes(shape=varying), size=3, color
 </div>
 <div id="problem-4b" class="section level2">
 <h2>Problem 4b</h2>
+<p>Study the spectrum of the community matrix of a competitive community in which species are divided into two groups (e.g., benthic, pelagic), and interactions are as follow:</p>
+<p>Community matrix conditions: 1. Mii (diagonal) = -5<br />
+2. Mij when species i and j is in the same group, Mij ~ N(mu1, sigma^2)<br />
+3. Mij when species i and j is in the different group, Mij ~ N(mu2, sigma^2)<br />
+4. There are only two groups and the number of species in each group is the same.</p>
+<ol style="list-style-type: decimal">
+<li>Now we are constructing matrix with the conditions above:</li>
+</ol>
+<pre class="r"><code># parameters setting
+n = 10
+sigma = 1/2
+mu1 = -1   # connectance
+mu2 = -1/2
+
+# Matrix generating function
+# let&#39;s say everytime we cluster the species in the same group together in the matrix.
+# so that we can make structured matrix.
+
+twogroup_matrix &lt;- function(sigma=0.5, n, mu1=-1,mu2=-0.5){
+  M = matrix(rep(0,n*n),n,n)
+  for (i in 1:n){
+    for (j in 1:n){
+      if(i != j){
+        # print(paste0(i,&#39;,&#39;,j))
+        # group 1 is species {1, 2, ..., n/2}
+        # group 2 is species {(n/2)+1, ..., n}
+        if ((i&lt;= n/2 &amp; j&lt;= n/2) | (i&gt; n/2 &amp; j&gt; n/2)){ # for i and j in the same group
+          M[i,j] &lt;- rnorm(1, mean=mu1, sd=sigma)
+          # print(M[i,j]) # testing
+        } else{ # # for i and j in the different group
+          M[i,j] &lt;- rnorm(1, mean=mu2, sd=sigma)
+          # print(M[i,j]) # testing
+        }
+      }
+    }
+  }
+  diag(M) &lt;- -5 
+  return(M)
+}
+
+twogroup_matrix(sigma=0.5, n=10, mu1=-1,mu2=-0.5)</code></pre>
+<pre><code>             [,1]       [,2]       [,3]       [,4]        [,5]       [,6]
+ [1,] -5.00000000 -0.9503132 -0.6264303 -1.4415236  0.11456593 -0.8841778
+ [2,] -1.47897821 -5.0000000 -2.0476298 -0.5079577 -1.35659408 -0.2229945
+ [3,] -1.80786241 -1.4016773 -5.0000000 -1.1712472 -0.92098413 -0.6703893
+ [4,] -0.91201163 -1.4805024 -1.5875846 -5.0000000 -0.99753520 -0.7186831
+ [5,] -0.95980455 -1.3610500 -1.5034865 -0.9613879 -5.00000000 -0.5764343
+ [6,] -0.73656197 -0.5952912 -0.7716384 -0.2424572 -0.84262652 -5.0000000
+ [7,] -0.37117636 -1.0904533 -0.9220649 -0.6646386  0.28866373 -1.5165411
+ [8,] -0.07548809  0.0557655 -0.8169991  0.5913483 -0.74336644 -1.4903877
+ [9,] -1.13183001  0.2085696 -0.2341407 -1.3800827 -0.05009089 -0.6590890
+[10,] -0.35333032 -0.4645341 -0.4258941 -0.4562446 -0.24128881 -0.3605065
+             [,7]       [,8]       [,9]      [,10]
+ [1,] -0.41195882 -0.6567927 -0.0725780  0.3657824
+ [2,]  0.02700335 -0.1927194 -0.8610325 -0.9582522
+ [3,] -0.45006051 -1.5452824 -1.6531455 -0.3943584
+ [4,] -1.25347313 -0.1515633 -0.5973469  0.2216467
+ [5,] -0.46419961 -0.8938513 -1.3417423 -0.7207508
+ [6,] -2.15520542 -1.1770143 -0.7048326 -1.2233158
+ [7,] -5.00000000 -1.7014081 -0.1134977 -0.9556004
+ [8,] -1.03785333 -5.0000000 -0.8403254 -1.0823106
+ [9,] -0.77270701 -1.2997027 -5.0000000 -1.4008856
+[10,] -0.90706651 -0.8681985 -0.9718103 -5.0000000</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li>Analyze the eigenvalue space:</li>
+</ol>
+<pre class="r"><code>eig &lt;- eigen(twogroup_matrix(sigma=0.5, n=1000, mu1=-1,mu2=-0.5), only.values = T)$values
+df_eig &lt;- data.frame(Real_lambda = Re(eig), Im_lambda = Im(eig))
+
+ggplot(df_eig,aes(x = Real_lambda,y = Im_lambda)) + geom_point(size=3, color=&#39;maroon&#39;) + theme_bw() +
+  scale_x_continuous(limits = c(min(Re(eig)), abs(min(Re(eig)))))+
+  labs(title=&quot;Eigenvalue distribution \n&quot;, x=&quot;\n Real part of eigenvalue&quot;,y=&quot;Imaginary part of eigenvalue \n&quot;)</code></pre>
+<p><img src="figure/TCE_HW4.Rmd/unnamed-chunk-6-1.png" width="1056" style="display: block; margin: auto;" /></p>
+<ol start="3" style="list-style-type: decimal">
+<li>Do with multiple random matrices:</li>
+</ol>
+<pre class="r"><code>n_random = 50
+
+df_eig &lt;- data.frame(Real_lambda = NULL, Im_lambda = NULL, num_random=NULL)
+for (i in 1:n_random){
+  # 100 species commuity matrix&#39;s eigen value
+  eig &lt;- eigen(twogroup_matrix(sigma=0.5, n=100, mu1=-1,mu2=-0.5), only.values = T)$values
+  df_eig_add &lt;- data.frame(Real_lambda = Re(eig), Im_lambda = Im(eig), num_random=i)
+  df_eig &lt;- rbind(df_eig, df_eig_add)
+}
+
+ggplot(df_eig,aes(x = Real_lambda,y = Im_lambda)) + geom_point(size=3, aes(color=num_random)) + theme_bw() +
+  labs(title=&quot;Eigenvalue distribution \n&quot;, x=&quot;\n Real part of eigenvalue&quot;,y=&quot;Imaginary part of eigenvalue \n&quot;)</code></pre>
+<p><img src="figure/TCE_HW4.Rmd/unnamed-chunk-7-1.png" width="1056" style="display: block; margin: auto;" /></p>
+<ol start="4" style="list-style-type: decimal">
+<li>The left most eigenvalue value changes with change of n</li>
+</ol>
+<pre class="r"><code>df_leftmost &lt;- data.frame(n_species = NULL, leftmost_re_eig =NULL)
+# from 10 species to 1000 species (only even number of species can devide into 2 groups)
+for (n_species in seq(10,500,by=10)){
+  # 10 randomization
+  n_rand = 10
+  min_re_eig = rep(0,n_rand)
+  for (i in (1:n_rand)){
+    eig_val &lt;- eigen(twogroup_matrix(sigma=0.5, n=n_species, mu1=-1,mu2=-0.5), only.values = T)$values
+    min_re_eig[i] &lt;- min(Re(eig_val))
+  }
+  df_leftmost_add &lt;- data.frame(n_species = rep(n_species,n_rand), leftmost_re_eig = min_re_eig)
+  df_leftmost &lt;- rbind(df_leftmost, df_leftmost_add)
+}
+
+# plot
+ggplot(df_leftmost,aes(x = n_species,y = leftmost_re_eig)) + geom_point(size=1, shape=1) + theme_bw() +
+  geom_smooth(method=&#39;lm&#39;, formula= y~x, size=0.1, color = &#39;red&#39;)+
+  labs(title=&quot;Left most eigenvalue&#39;s real part changes with matrix size \n&quot;, x=&quot;\n Number of species (community matrix size)&quot;,y=&quot;Left most real part of eigenvaluee \n&quot;)</code></pre>
+<p><img src="figure/TCE_HW4.Rmd/unnamed-chunk-8-1.png" width="1056" style="display: block; margin: auto;" /></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -737,17 +887,18 @@ other attached packages:
 loaded via a namespace (and not attached):
  [1] Rcpp_1.0.5        highr_0.8         pillar_1.5.1      compiler_4.0.3   
  [5] bslib_0.2.4       later_1.1.0.1     jquerylib_0.1.3   git2r_0.28.0     
- [9] tools_4.0.3       digest_0.6.27     jsonlite_1.7.2    evaluate_0.14    
-[13] lifecycle_1.0.0   tibble_3.0.4      gtable_0.3.0      pkgconfig_2.0.3  
-[17] rlang_0.4.10      DBI_1.1.1         yaml_2.2.1        xfun_0.20        
-[21] withr_2.4.1       dplyr_1.0.4       stringr_1.4.0     knitr_1.31       
-[25] generics_0.1.0    fs_1.5.0          vctrs_0.3.6       sass_0.3.1       
-[29] tidyselect_1.1.0  rprojroot_2.0.2   grid_4.0.3        glue_1.4.2       
-[33] R6_2.5.0          fansi_0.4.2       rmarkdown_2.7     farver_2.1.0     
-[37] purrr_0.3.4       magrittr_2.0.1    whisker_0.4       scales_1.1.1     
-[41] promises_1.1.1    ellipsis_0.3.1    htmltools_0.5.1.1 assertthat_0.2.1 
-[45] colorspace_2.0-0  httpuv_1.5.4      labeling_0.4.2    utf8_1.1.4       
-[49] stringi_1.5.3     munsell_0.5.0     crayon_1.4.1     </code></pre>
+ [9] tools_4.0.3       digest_0.6.27     lattice_0.20-41   nlme_3.1-149     
+[13] jsonlite_1.7.2    evaluate_0.14     lifecycle_1.0.0   tibble_3.0.4     
+[17] gtable_0.3.0      mgcv_1.8-33       pkgconfig_2.0.3   rlang_0.4.10     
+[21] Matrix_1.2-18     DBI_1.1.1         yaml_2.2.1        xfun_0.20        
+[25] withr_2.4.1       dplyr_1.0.4       stringr_1.4.0     knitr_1.31       
+[29] generics_0.1.0    fs_1.5.0          vctrs_0.3.6       sass_0.3.1       
+[33] tidyselect_1.1.0  rprojroot_2.0.2   grid_4.0.3        glue_1.4.2       
+[37] R6_2.5.0          fansi_0.4.2       rmarkdown_2.7     farver_2.1.0     
+[41] purrr_0.3.4       magrittr_2.0.1    whisker_0.4       splines_4.0.3    
+[45] scales_1.1.1      promises_1.1.1    ellipsis_0.3.1    htmltools_0.5.1.1
+[49] assertthat_0.2.1  colorspace_2.0-0  httpuv_1.5.4      labeling_0.4.2   
+[53] utf8_1.1.4        stringi_1.5.3     munsell_0.5.0     crayon_1.4.1     </code></pre>
 </div>
 </div>
 
