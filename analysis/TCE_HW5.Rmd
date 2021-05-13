@@ -31,21 +31,20 @@ Let's start with constructing binary matrix that represents a tree
 
 # Create vector for each species (the most bottom branch)
 n = 5
-sampling_matrix <- diag(n)
+(sampling_matrix <- diag(n))
 
-## (Step 1) From these species, choose two species/clusters to group them. We are going to hierarchically group it, until we group every species into one group (this vector will be [1, 1, 1, 1, ..., 1])
+## (Step 1) From these species' most bottom branches, choose two species/clusters to group them. We are going to hierarchically group it, until we group every species into one group (this vector will be [1, 1, 1, 1, ..., 1])
 set.seed(1)
-random_2_cols <- sample(dim(sampling_matrix)[2], 2, replace = FALSE, prob = NULL)
+(random_2_cols <- sample(dim(sampling_matrix)[2], 2, replace = FALSE, prob = NULL))
 
 # (Step 2) put sampled columns into "accumulative_matrix"
-accumulative_matrix <- sampling_matrix[,random_2_cols]
+(accumulative_matrix <- sampling_matrix[,random_2_cols])
 
 # (Step 3) sum up picked two species/clusters and add it to the "sampling_matrix"
-sampling_matrix <- cbind(sampling_matrix, rowSums(sampling_matrix[,random_2_cols]))
+(sampling_matrix <- cbind(sampling_matrix, rowSums(sampling_matrix[,random_2_cols])))
 
 # (Step 4) remove the randomly picked 2 columns from the "sampling_matrix"
-sampling_matrix <- sampling_matrix[,-random_2_cols, drop = FALSE] # make the matrix not collapse into vector
-sampling_matrix
+(sampling_matrix <- sampling_matrix[,-random_2_cols, drop = FALSE]) # make the matrix not collapse into vector
 
 # repeat this until rowSums(sampling_matrix[,random_2_cols]) is all 1
 while (!all(sampling_matrix ==1)){
@@ -66,10 +65,112 @@ while (!all(sampling_matrix ==1)){
 sampling_matrix
 # include the [1,1,1,....,1] to the "accumulative_matrix"
 accumulative_matrix <- cbind(accumulative_matrix,sampling_matrix)
+
+# order the matrix
 V <- accumulative_matrix
-V
+V <- V[,order(apply(V,2,sum), decreasing=T)] # sum of each column should decrease from left to right
+# make the last n columns identity matrix
+V <- cbind(V[,1:(n-1)],diag(n))
+
 ```
 
+Then, get randomized branch length for 2n-1 branches and calculate the Σ = V x D(b) x VT.
+```{r}
+branch_num <- 2*n - 1
+(B <- diag(runif(branch_num)))
+
+# Phylogenetic closeness (distance of root to common ancestor)
+Phylo_closeness = V %*% B %*% t(V)
+Phylo_closeness
+
+```
+
+Scale so that we have an ultrametric tree.
+- Distance of root to common ancestor (species 1 to 1, species 2 to 2) of the same species have to be equal (=1).\
+- I couldn't figure this out. So I adopt Zach's method of randomizing internal branches' length and then adding the length of tips to consummate to 1.
+```{r}
+# Internal branches
+B_int = diag(runif(n-1))
+V_int = V[,-( (n) : (2*n-1) )]
+
+Phylo_int = V_int %*% B_int %*% t(V_int)
+Phylo_int
+# the internal branch length is over 1, so we will make those less than 1 by reducing branch length.
+B_int_half <- B_int * 0.2
+Phylo_int = V_int %*% B_int_half %*% t(V_int)
+Phylo_int
+
+# Now as Zach's idea, use the same internal branch length + tip branch length (which is 1 - diagonal of Phylo_int)
+scaled_branch_len <- c(diag(B_int_half),1-diag(Phylo_int))
+Phylo_closeness_scaled = V %*% diag(scaled_branch_len) %*% t(V)
+Phylo_closeness_scaled
+
+```
+
+Now solve the gLV model: dxdt=D(x)(1−Σx)
+```{r}
+# Find all feasible solutions
+E <- Phylo_closeness_scaled
+s <- rep(1,n)
+
+# Stability <=> real part of eigenvalues are all negative
+# function
+leftmost <- function(M){
+  eig <- eigen(M, only.values = T)$values
+  # print(Re(eig)) # print all real part of eigenvalues
+  return(min(Re(eig))) # the right most eigenvalue
+} 
+
+feasible_stable_list <- list()
+for (subset in 1:(2^n-1)){
+  presence_vector <- as.numeric(intToBits(subset)[1:n])
+  s_subset <- s[presence_vector>0]
+  E_subset <- E[presence_vector>0,presence_vector>0]
+  x_star <- rep(0,n)
+  x_star[presence_vector>0] <- solve(E_subset,s_subset)
+  
+  # check feasible & stable
+  if((leftmost(E_subset) > 0) & (all(solve(E_subset, s_subset) > 0))){
+    feasible_stable_list[[length(feasible_stable_list)+1]] <- list(
+      community = subset,
+      presence = presence_vector,
+      xstar = x_star
+    )
+  }
+}
+
+# feasible_stable_list
+length(feasible_stable_list) # all 31 community (2^5 -1 =31)
+```
+All feasible subset community are stable.
+
+Lastly, make the assembly graph
+```{r}
+# adjacency matrix
+adj_mat <- matrix(0,length(feasible_stable_list),length(feasible_stable_list))
+
+# if community presence matrix of state i (e.g. 10010) is nested in state j (e.g. 10110), then we draw a directed link (i -> j)
+# to test the nestedness, loop over all feasible, stable states' presence vector
+for (i in 1:dim(adj_mat)[1]){
+  for (j in 1:dim(adj_mat)[2]){
+    # presence vectors
+    vec_i <- feasible_stable_list[[i]]$presence
+    vec_j <- feasible_stable_list[[j]]$presence
+    if (all(vec_i <= vec_j)){ # i is nested to j
+      # only 1 invasion event
+      if (sum(vec_j - vec_i) == 1) {
+        # print(paste0(vec_j - vec_i))
+        adj_mat[i,j] <- 1
+      }
+    }
+  }
+}
+
+library(igraph)
+assembly_graph <- graph_from_adjacency_matrix(adj_mat)
+plot(assembly_graph, layout = layout_with_sugiyama(assembly_graph)$layout)
+```
+The assembly graph is symmetric and organized (it shows all the combinations of nC1, nC2, nC3, nC4, nC5). It's because all of our feasible states are stable.
 
 
 
