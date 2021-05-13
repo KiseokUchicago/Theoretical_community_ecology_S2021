@@ -1,0 +1,75 @@
+---
+title: "TCE_HW5"
+author: "KiseokUchicago"
+date: "2021-05-13"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=11, fig.height=9,
+                      error=TRUE, echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE)
+```
+
+## Homework5
+## Coding assignment for ECEV 43900 Theoretical Community Ecology
+Professor: **Stefano Allesina** (TA: **Zach Miller**) \
+Student: **Kiseok Lee**  
+
+Build the assembly graph for a GLV model in which the growth rates of all species are the same, and interactions are given by phylogenetic relatedness.
+
+In particular, consider an ultrametric phylogenetic tree T, and the “variance-covariance” matrix induced by the tree, Σ. Because the tree is ultrametric, then Σii=1 for all i. The off-diagonal elements Σij express the proportion of shared ancestry (and as such 1≥Σij≥0).\
+Take the GLV model:dxdt=D(x)(1−Σx)
+
+Notice that Σ is positive (semi-)definite by construction. Now build the assembly graph: does it have any interesting property?
+
+Let's start with constructing binary matrix that represents a tree
+```{r}
+# We are going to use a bottom up pairing approach to construct a tree
+# the number of branches are 2n-1 (number of species = n)
+
+# Create vector for each species (the most bottom branch)
+n = 5
+sampling_matrix <- diag(n)
+
+## (Step 1) From these species, choose two species/clusters to group them. We are going to hierarchically group it, until we group every species into one group (this vector will be [1, 1, 1, 1, ..., 1])
+set.seed(1)
+random_2_cols <- sample(dim(sampling_matrix)[2], 2, replace = FALSE, prob = NULL)
+
+# (Step 2) put sampled columns into "accumulative_matrix"
+accumulative_matrix <- sampling_matrix[,random_2_cols]
+
+# (Step 3) sum up picked two species/clusters and add it to the "sampling_matrix"
+sampling_matrix <- cbind(sampling_matrix, rowSums(sampling_matrix[,random_2_cols]))
+
+# (Step 4) remove the randomly picked 2 columns from the "sampling_matrix"
+sampling_matrix <- sampling_matrix[,-random_2_cols, drop = FALSE] # make the matrix not collapse into vector
+sampling_matrix
+
+# repeat this until rowSums(sampling_matrix[,random_2_cols]) is all 1
+while (!all(sampling_matrix ==1)){
+  ## (Step 1) From these species, choose two species/clusters to group them.
+  random_2_cols <- sample(dim(sampling_matrix)[2], 2, replace = FALSE, prob = NULL)
+  
+  ## (Step 2) put sampled columns into "accumulative_matrix"
+  accumulative_matrix <- cbind(accumulative_matrix, sampling_matrix[,random_2_cols])
+  
+  # (Step 3) sum 2 columns(species/clusters) picked and add it to the "sampling_matrix"
+  sampling_matrix <- cbind(sampling_matrix, rowSums(sampling_matrix[,random_2_cols]))
+  
+  # (Step 4) remove the randomly picked 2 columns from the "sampling_matrix"
+  sampling_matrix <- sampling_matrix[,-random_2_cols, drop = FALSE] # make the matrix not collapse into vector
+  sampling_matrix
+}
+
+sampling_matrix
+# include the [1,1,1,....,1] to the "accumulative_matrix"
+accumulative_matrix <- cbind(accumulative_matrix,sampling_matrix)
+V <- accumulative_matrix
+V
+```
+
+
+
+
