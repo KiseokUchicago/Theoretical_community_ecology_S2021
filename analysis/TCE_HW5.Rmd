@@ -85,9 +85,9 @@ Phylo_closeness
 
 ```
 
-Scale so that we have an ultrametric tree.
+Scale so that we have an ultrametric tree. \
 - Distance of root to common ancestor (species 1 to 1, species 2 to 2) of the same species have to be equal (=1).\
-- I couldn't figure this out. So I adopt Zach's method of randomizing internal branches' length and then adding the length of tips to consummate to 1.
+- I couldn't figure this out. So I adopt Zach's method of randomizing internal branches' length and then adding the length of tips to consummate to 1.\
 ```{r}
 # Internal branches
 B_int = diag(runif(n-1))
