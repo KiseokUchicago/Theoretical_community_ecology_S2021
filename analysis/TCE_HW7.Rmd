@@ -77,7 +77,7 @@ my_color_collection <- c(
 
 ```
 
-## 7a
+## 7a.
 Analyze the replicator equation when the matrix A.
 for the cases in which a) α>1, b) α<1. Write code to simulate the system, and prove stability/instability depending on the value of α.
 
@@ -272,7 +272,7 @@ ggarrange(p1,p2,p3,p4,p5,p6,p7,p8,p9,
           ncol = 3, nrow = 3)
 ```
 
-With 8 species, 4 species are coexisting
+With 8 species, 4 species are coexisting only when alpha is greater than 0.
 ```{r}
 # Try A with 8 species
 # general function to integrate RE and plot
