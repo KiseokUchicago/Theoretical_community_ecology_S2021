@@ -1,0 +1,329 @@
+---
+title: "TCE_HW7"
+author: "KiseokUchicago"
+date: "2021-06-02"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=11, fig.height=9,
+                      error=TRUE, echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE)
+```
+
+## Homework7 (Game theory)
+## Coding assignment for ECEV 43900 Theoretical Community Ecology
+Professor: **Stefano Allesina** (TA: **Zach Miller**) \
+Student: **Kiseok Lee**  
+
+```{r}
+# libraries
+library(igraph)
+library(tidygraph)
+library(ggraph)
+library(bipartite)
+library(dplyr)
+library(ggplot2)
+library(ggrepel)
+library(RColorBrewer)
+library(vegan)
+library(tidyverse)
+library(magrittr)
+library(reshape2)
+library(gtools)
+library(devtools)
+library(ggpubr)
+library(MASS)
+library(deSolve)
+
+## theme for ggplot
+mytheme <- theme_bw() + 
+  theme(plot.title = element_text(size = 19,hjust = 0.5, family="serif")) + 
+  theme(axis.title.x = element_text(size = 17,hjust = 0.5, family="serif")) + 
+  theme(axis.title.y = element_text(size = 17,hjust = 0.5, family="serif")) + 
+  theme(axis.text.x = element_text(hjust = 0.5, vjust=0.3,size=13, family="serif"))+
+  theme(axis.text.y = element_text(size=10, family="serif"))+
+  theme(panel.grid.major = element_blank()) +
+  theme(panel.grid.minor = element_blank(),panel.background=element_blank(),panel.border=element_blank(),plot.background=element_blank()) +
+  theme(axis.ticks = element_line(size = 1.1))
+  
+mytheme_2d <- theme_bw() + 
+  theme(plot.title = element_text(size = 19,hjust = 0.5, family="serif")) + 
+  theme(axis.title.x = element_text(size = 17,hjust = 0.5, family="serif")) + 
+  theme(axis.title.y = element_text(size = 17,hjust = 0.5, family="serif")) + 
+  theme(axis.text.x = element_text(hjust = 0.5, vjust=0.3,size=13, family="serif"))+
+  theme(axis.text.y = element_text(size=13, family="serif"))+
+  theme(panel.grid.major = element_blank()) +
+  theme(panel.grid.minor = element_blank(),panel.background=element_blank(),plot.background=element_blank()) +
+  theme(axis.ticks = element_line(size = 1.1))
+
+
+# color collection
+my_color_collection <- c(
+  "#CBD588", "#5F7FC7", "orange", "#AD6F3B", "#673770", 
+  "#D14285", "#652926", "#C84248", "#8569D5", "#5E738F",
+  "#D1A33D", "#8A7C64", "#599861","#616163", "#FFCDB2",
+  "#6D9F71", "#242F40",
+   "#CCA43B", "#F92A82", "#ED7B84", "#7EB77F", 
+  "#DEC4A1", "#E5D1D0", '#0E8482', '#C9DAEA', '#337357', 
+  '#95C623', '#E55812', '#04471C', '#F2D7EE', '#D3BCC0', 
+  '#A5668B', '#69306D', '#0E103D', '#1A535C', '#4ECDC4', 
+  '#F7FFF7', '#FF6B6B', '#FFE66D', '#6699CC', '#FFF275', 
+  '#FF8C42', '#FF3C38', '#A23E48', '#000000', '#CF5C36', 
+  '#EEE5E9', '#7C7C7C', '#EFC88B', '#2E5266', '#6E8898', 
+  '#9FB1BC', '#D3D0CB', '#E2C044', '#5BC0EB', '#FDE74C', 
+  '#9BC53D', '#E55934', '#FA7921', "#CD9BCD", "#508578", "#DA5724")
+
+```
+
+## 7a
+Analyze the replicator equation when the matrix A.
+for the cases in which a) α>1, b) α<1. Write code to simulate the system, and prove stability/instability depending on the value of α.
+
+Set up functions for replicator dynamics
+```{r}
+# define the differential equation
+RE <-function(t, x, parameters){
+  with(as.list(c(x, parameters)), {
+  x[x < 10^-8] <- 0 # prevent numerical problems
+  x <- x / sum(x) # keep on simplex
+  dxdt <- x * (A %*% x - sum(x * A %*% x))
+  list(dxdt)
+  })
+}
+
+# general function to integrate RE and plot
+integrate_RE_and_plot <- function(alpha, x0, maxtime = 200, steptime = 0.05){
+  times <- seq(0, maxtime, by = steptime)
+  A = matrix(c(0, 1, -alpha,
+             -alpha, 0, 1,
+             1, -alpha, 0), nrow=3, ncol=3)
+  parameters <- list(A = A)
+  # solve numerically
+  # Initial conditions
+  set.seed(1)
+  x0 <- runif(3)
+  x0 <- x0 / sum(x0)
+  out <- ode(y = x0, times = times, func = RE, parms = parameters, method = "ode45")
+  # plot and make into tidy form
+  out <- as.data.frame(out)
+  colnames(out) <- c("time", paste("sp", 1:(ncol(out) -1), sep = "_"))
+  out <- as_tibble(out) %>% gather(species, density, -time)
+  
+  p <- ggplot(data = out) + aes(x = time, y = density, colour = species) +
+    geom_line() +
+    scale_x_continuous(expression(t)) +
+    scale_y_continuous(expression(x(t))) +
+    mytheme_2d
+  return(p)
+}
+
+
+```
+
+Plot and see.
+only 1 species exist.
+```{r}
+## (1) When alpha is positive
+integrate_RE_and_plot(alpha=3, x0)
+
+## (2) When alpha is negative
+integrate_RE_and_plot(alpha=-3, x0)
+
+## (3) some range of alphas
+alpha_vec <- seq(-4, 4, by=1)
+length(alpha_vec)
+
+p1 <- integrate_RE_and_plot(alpha=alpha_vec[1], x0) 
+p2 <- integrate_RE_and_plot(alpha=alpha_vec[2], x0) 
+p3 <- integrate_RE_and_plot(alpha=alpha_vec[3], x0)
+p4 <- integrate_RE_and_plot(alpha=alpha_vec[4], x0) 
+p5 <- integrate_RE_and_plot(alpha=alpha_vec[5], x0) 
+p6 <- integrate_RE_and_plot(alpha=alpha_vec[6], x0) 
+p7 <- integrate_RE_and_plot(alpha=alpha_vec[7], x0) 
+p8 <- integrate_RE_and_plot(alpha=alpha_vec[8], x0) 
+p9 <- integrate_RE_and_plot(alpha=alpha_vec[9], x0)
+
+ggarrange(p1,p2,p3,p4,p5,p6,p7,p8,p9, # + rremove("x.text") 
+          labels = alpha_vec,
+          ncol = 3, nrow = 3)
+```
+
+Stability analysis
+
+dx/dt = D(x)Ax
+Jacobian matrix = D(x*)A
+```{r}
+# feasible fixed points
+alpha <- -2 
+A = matrix(c(0, 1, -alpha,
+           -alpha, 0, 1,
+           1, -alpha, 0), nrow=3, ncol=3)
+# A %*% x = sum(x * A %*% x)
+
+```
+Can't find the feasible equilibrium...?
+
+## 7b. 
+As seen above, generally zero-sum matrix games will lead to an odd number of species coexisting.
+
+Can you build a matrix leading to four species/strategies coexisting?
+Now simulate the dynamics several times, starting from different initial conditions—do species cycle around the same equilibrium? Why?
+
+```{r}
+# Try A with 4 species
+# general function to integrate RE and plot
+integrate_RE_and_plot <- function(alpha, x0, maxtime = 200, steptime = 0.05){
+  times <- seq(0, maxtime, by = steptime)
+  A = matrix(c(0, 0, 1, -alpha,
+             -alpha, 0, 0, 1,
+             1, -alpha, 0, 0,
+             0, 0, 1, -alpha), nrow=4, ncol=4)
+  parameters <- list(A = A)
+  # solve numerically
+  # Initial conditions
+  set.seed(1)
+  x0 <- runif(4)
+  x0 <- x0 / sum(x0)
+  out <- ode(y = x0, times = times, func = RE, parms = parameters, method = "ode45")
+  # plot and make into tidy form
+  out <- as.data.frame(out)
+  colnames(out) <- c("time", paste("sp", 1:(ncol(out) -1), sep = "_"))
+  out <- as_tibble(out) %>% gather(species, density, -time)
+  
+  p <- ggplot(data = out) + aes(x = time, y = density, colour = species) +
+    geom_line() +
+    scale_x_continuous(expression(t)) +
+    scale_y_continuous(expression(x(t))) +
+    mytheme_2d
+  return(p)
+}
+
+##  some range of alphas
+alpha_vec <- seq(-4, 4, by=1)
+length(alpha_vec)
+
+p1 <- integrate_RE_and_plot(alpha=alpha_vec[1], x0) 
+p2 <- integrate_RE_and_plot(alpha=alpha_vec[2], x0) 
+p3 <- integrate_RE_and_plot(alpha=alpha_vec[3], x0)
+p4 <- integrate_RE_and_plot(alpha=alpha_vec[4], x0) 
+p5 <- integrate_RE_and_plot(alpha=alpha_vec[5], x0) 
+p6 <- integrate_RE_and_plot(alpha=alpha_vec[6], x0) 
+p7 <- integrate_RE_and_plot(alpha=alpha_vec[7], x0) 
+p8 <- integrate_RE_and_plot(alpha=alpha_vec[8], x0) 
+p9 <- integrate_RE_and_plot(alpha=alpha_vec[9], x0)
+
+ggarrange(p1,p2,p3,p4,p5,p6,p7,p8,p9,
+          labels = alpha_vec,
+          ncol = 3, nrow = 3)
+
+```
+
+Try expanding the matrix A size
+
+```{r}
+# Try A with 5 species
+# general function to integrate RE and plot
+integrate_RE_and_plot <- function(alpha, x0, maxtime = 200, steptime = 0.05){
+  times <- seq(0, maxtime, by = steptime)
+  A = matrix(c(0, 0, 0, 1, -alpha,
+             -alpha, 0, 0, 0, 1,
+             1, -alpha, 0, 0, 0,
+             0, 1, -alpha, 0, 0,
+             0, 0, 1, -alpha, 0,
+             0, 0, 0, 1, -alpha), nrow=5, ncol=5)
+  parameters <- list(A = A)
+  # solve numerically
+  # Initial conditions
+  set.seed(1)
+  x0 <- runif(5)
+  x0 <- x0 / sum(x0)
+  out <- ode(y = x0, times = times, func = RE, parms = parameters, method = "ode45")
+  # plot and make into tidy form
+  out <- as.data.frame(out)
+  colnames(out) <- c("time", paste("sp", 1:(ncol(out) -1), sep = "_"))
+  out <- as_tibble(out) %>% gather(species, density, -time)
+  
+  p <- ggplot(data = out) + aes(x = time, y = density, colour = species) +
+    geom_line() +
+    scale_x_continuous(expression(t)) +
+    scale_y_continuous(expression(x(t))) +
+    mytheme_2d
+  return(p)
+}
+
+##  some range of alphas
+alpha_vec <- seq(-4, 4, by=1)
+length(alpha_vec)
+
+p1 <- integrate_RE_and_plot(alpha=alpha_vec[1], x0) 
+p2 <- integrate_RE_and_plot(alpha=alpha_vec[2], x0) 
+p3 <- integrate_RE_and_plot(alpha=alpha_vec[3], x0)
+p4 <- integrate_RE_and_plot(alpha=alpha_vec[4], x0) 
+p5 <- integrate_RE_and_plot(alpha=alpha_vec[5], x0) 
+p6 <- integrate_RE_and_plot(alpha=alpha_vec[6], x0) 
+p7 <- integrate_RE_and_plot(alpha=alpha_vec[7], x0) 
+p8 <- integrate_RE_and_plot(alpha=alpha_vec[8], x0) 
+p9 <- integrate_RE_and_plot(alpha=alpha_vec[9], x0)
+
+ggarrange(p1,p2,p3,p4,p5,p6,p7,p8,p9,
+          labels = alpha_vec,
+          ncol = 3, nrow = 3)
+```
+
+With 8 species, 4 species are coexisting
+```{r}
+# Try A with 8 species
+# general function to integrate RE and plot
+integrate_RE_and_plot <- function(alpha, x0, maxtime = 200, steptime = 0.05){
+  times <- seq(0, maxtime, by = steptime)
+  A = matrix(c(0, 0, 0, 0, 0, 0, 1, -alpha,
+             -alpha, 0, 0, 0, 0, 0, 0, 1,
+               1, -alpha, 0, 0, 0, 0, 0, 0,
+               0, 1, -alpha, 0, 0, 0, 0, 0,
+               0, 0, 1, -alpha, 0, 0, 0, 0,
+               0, 0, 0, 1, -alpha, 0, 0, 0,
+               0, 0, 0, 0, 1, -alpha, 0, 0,
+               0, 0, 0, 0, 0, 1, -alpha, 0), nrow=8, ncol=8)
+  parameters <- list(A = A)
+  # solve numerically
+  # Initial conditions
+  set.seed(1)
+  x0 <- runif(8)
+  x0 <- x0 / sum(x0)
+  out <- ode(y = x0, times = times, func = RE, parms = parameters, method = "ode45")
+  # plot and make into tidy form
+  out <- as.data.frame(out)
+  colnames(out) <- c("time", paste("sp", 1:(ncol(out) -1), sep = "_"))
+  out <- as_tibble(out) %>% gather(species, density, -time)
+  
+  p <- ggplot(data = out) + aes(x = time, y = density, colour = species) +
+    geom_line() +
+    scale_x_continuous(expression(t)) +
+    scale_y_continuous(expression(x(t))) +
+    mytheme_2d
+  return(p)
+}
+
+##  some range of alphas
+alpha_vec <- seq(-4, 4, by=1)
+length(alpha_vec)
+
+p1 <- integrate_RE_and_plot(alpha=alpha_vec[1], x0) 
+p2 <- integrate_RE_and_plot(alpha=alpha_vec[2], x0) 
+p3 <- integrate_RE_and_plot(alpha=alpha_vec[3], x0)
+p4 <- integrate_RE_and_plot(alpha=alpha_vec[4], x0) 
+p5 <- integrate_RE_and_plot(alpha=alpha_vec[5], x0) 
+p6 <- integrate_RE_and_plot(alpha=alpha_vec[6], x0) 
+p7 <- integrate_RE_and_plot(alpha=alpha_vec[7], x0) 
+p8 <- integrate_RE_and_plot(alpha=alpha_vec[8], x0) 
+p9 <- integrate_RE_and_plot(alpha=alpha_vec[9], x0)
+
+ggarrange(p1,p2,p3,p4,p5,p6,p7,p8,p9,
+          labels = alpha_vec,
+          ncol = 3, nrow = 3)
+```
+
+
+
